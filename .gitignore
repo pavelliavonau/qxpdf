@@ -10,3 +10,6 @@
 *.lai
 *.la
 *.a
+
+testProject-build-desktop/
+src/testProject.pro.user

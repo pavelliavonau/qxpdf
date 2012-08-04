@@ -105,10 +105,10 @@ SOURCES += main.cpp\
     libxpdf/splash/SplashState.cc \
     libxpdf/splash/SplashFont.cc \
     libxpdf/splash/SplashFTFont.cc \
-    util/loader.cpp \
     logic/pdfreaderlogic.cpp \
     gui/pagegraphicsitem.cpp \
-    events/pagegraphicsitemevent.cpp
+    events/pagegraphicsitemevent.cpp \
+    logic/documentpdf.cpp
 
 HEADERS  += gui/mainwindow.h \
     libxpdf/xpdf/PDFCore.h \
@@ -192,7 +192,6 @@ HEADERS  += gui/mainwindow.h \
     libxpdf/splash/SplashFTFont.h \
     libxpdf/xpdf/NameToCharCode.h \
     libxpdf/splash/SplashState.h \
-    util/loader.h \
     common/types.h \
     logic/pdfreaderlogic.h \
     gui/pagegraphicsitem.h \
@@ -280,7 +279,8 @@ HEADERS  += gui/mainwindow.h \
 #    include/freetype/internal/services/svcid.h \
 #    include/freetype/internal/services/svbdf.h \
 #    include/freetype/internal/services/svxf86nm.h \
-    libxpdf/goo/GMutex.h
+    libxpdf/goo/GMutex.h \
+    logic/documentpdf.h
 
 FORMS    += gui/mainwindow.ui
 

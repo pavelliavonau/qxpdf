@@ -4,6 +4,7 @@
 #include <QList>
 
 class   QImage;
+class   DocumentPDF;
 
 typedef     bool    bool_t;
 typedef     char*   c_str_t;
@@ -13,6 +14,8 @@ typedef     long    long_t;
 typedef     double    double_t;
 typedef     QList<QImage *>*    ThumbonailsListPtr_t;
 typedef     QList<QImage *>::iterator    ThumbonailsIterator;
+typedef     QList<DocumentPDF*>*    DocumentsPtr_t;
+typedef     QList<DocumentPDF*>::iterator    DocumentsIterator;
 
 
 /* constants */

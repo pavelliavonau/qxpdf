@@ -1,14 +1,13 @@
 #include "pdfreaderlogic.h"
 #include "mainwindow.h"
-#include "loader.h"
 #include "GlobalParams.h"
-#include <QTextCodec>
+#include "documentpdf.h"
 
 PDFReaderLogic::PDFReaderLogic()
 {
     globalParams = new GlobalParams(NULL);
     globalParams->setupBaseFonts(NULL);
-    mp_codec = QTextCodec::codecForName(SYSTEM_ENCODING);
+    m_documents = new QList<DocumentPDF*>();
 }
 
 PDFReaderLogic::~PDFReaderLogic()
@@ -16,118 +15,88 @@ PDFReaderLogic::~PDFReaderLogic()
     delete globalParams;
 }
 
-bool_t PDFReaderLogic::loadThumbonailsFromFile(QString filename)
-{    
-    mp_filename = new QString(filename);
-
-//    wchar_t* wStr;
-//    mp_filename->toWCharArray(wStr);
-
-    QByteArray array = mp_codec->fromUnicode(*mp_filename);
-
-    c_str_t c_filename = array.data();
-
-    Loader loader(c_filename);
-    if ((mp_thumbonails = loader.getThumbonails()) != NULL)
-    {
-        m_numberOfPages = mp_thumbonails->size();
-        m_pageNumber = 1;
-        m_pageZoom = 1;
-        mp_currentPage = NULL;
-        return true;
-    }
-    return false;
+bool_t PDFReaderLogic::openDocument(const QString & _name)
+{
+    DocumentPDF* document = new DocumentPDF(_name);
+    m_documents->push_back(document);
+    return document->isValid();
 }
 
-ThumbonailsListPtr_t PDFReaderLogic::getThumbonails() const
+bool_t PDFReaderLogic::closeDocument(const int index)
 {
-    return mp_thumbonails;
+    DocumentPDF* document = m_documents->takeAt(index);
+    delete document;
 }
 
-QImage *PDFReaderLogic::getPage(int_t number)
+ThumbonailsListPtr_t PDFReaderLogic::getThumbonailsFromDocument(const int index)
 {
-    if (mp_currentPage != NULL)
-    {
-        uchar* bits = mp_currentPage->bits();
-        delete[] bits;
-        delete mp_currentPage;        
-        mp_currentPage = NULL;
-    }
-
-    QByteArray array = mp_codec->fromUnicode(*mp_filename);
-
-    c_str_t c_filename = array.data();
-    Loader loader(c_filename);
-
-    mp_currentPage = loader.getPage(number);
-    return mp_currentPage;
+    DocumentPDF* document = m_documents->at(index);
+    return document->getThumbonailsFromDocument();
 }
 
-int_t PDFReaderLogic::getNumberOfPages() const
+QImage *PDFReaderLogic::getPage(const int index, int_t number)
 {
-    return m_numberOfPages;
+    DocumentPDF* document = m_documents->at(index);
+    return document->getPage(number);
 }
 
-int_t PDFReaderLogic::getPageNumber() const
+int_t PDFReaderLogic::getNumberOfPages(const int index) const
 {
-    return m_pageNumber;
+    DocumentPDF* document = m_documents->at(index);
+    return document->getNumberOfPages();
 }
 
-void PDFReaderLogic::setPageNumber(int_t number)
+int_t PDFReaderLogic::getPageNumber(const int index) const
 {
-    m_pageNumber = number;
+    DocumentPDF* document = m_documents->at(index);
+    return document->getPageNumber();
 }
 
-double_t PDFReaderLogic::getPageZoom() const
+void PDFReaderLogic::setPageNumber(const int index, int_t number)
 {
-    return m_pageZoom;
+    DocumentPDF* document = m_documents->at(index);
+    document->setPageNumber(number);
 }
 
-void PDFReaderLogic::setPageZoom(double_t _pageZoom)
+double_t PDFReaderLogic::getPageZoom(const int index) const
 {
-    m_pageZoom = _pageZoom;
+    DocumentPDF* document = m_documents->at(index);
+    return document->getPageZoom();
+}
+
+void PDFReaderLogic::setPageZoom(const int index, double_t _pageZoom)
+{
+    DocumentPDF* document = m_documents->at(index);
+    document->setPageZoom(_pageZoom);
 }
 
 
-bool_t PDFReaderLogic::isInRangeOfNumbers(int_t _number)
+bool_t PDFReaderLogic::isInRangeOfNumbers(const int index, int_t _number)
 {
-    if (_number < m_numberOfPages && _number >= 0)
+    DocumentPDF* document = m_documents->at(index);
+    if (_number < document->getNumberOfPages() && _number >= 0)
     {
         return true;
     }
     return false;
 }
 
-bool_t PDFReaderLogic::isLastPage()
+bool_t PDFReaderLogic::isLastPage(const int index)
 {
-    if (m_pageNumber == m_numberOfPages - 1)
+    DocumentPDF* document = m_documents->at(index);
+    if (document->getPageNumber() == document->getNumberOfPages() - 1)
     {
         return true;
     }
     return false;
 }
 
-bool_t PDFReaderLogic::isFirstPage()
+bool_t PDFReaderLogic::isFirstPage(const int index)
 {
-    if (m_pageNumber == 0)
+    DocumentPDF* document = m_documents->at(index);
+    if (document->getPageNumber() == 0)
     {
         return true;
     }
     return false;
 }
-
-bool_t PDFReaderLogic::clean()
-{
-    foreach (QImage* p_image, *mp_thumbonails)
-    {
-        uchar* p_bits = p_image->bits();        
-        delete[] p_bits;
-        delete p_image;
-
-    }
-
-    delete mp_thumbonails;
-    delete mp_filename;
-    return true;
-}
-

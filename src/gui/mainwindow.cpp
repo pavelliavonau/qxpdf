@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "loader.h"
 #include "pdfreaderlogic.h"
 #include <QFileDialog>
 #include <QImage>
@@ -20,7 +19,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {    
     ui->setupUi(this);
-//    m_readerLogic = new PDFReaderLogic(this);
 
     createDock();
 
@@ -92,7 +90,7 @@ void MainWindow::on_actionOpen_triggered()
         resetStateBeforeLoading();        
     }
 
-    if (!m_readerLogic.loadThumbonailsFromFile(filename))
+    if (!m_readerLogic.openDocument(filename))
     {        
         QMessageBox::information(this, QString(tr("Error")), QString(tr("Error occured while opening file. Sorry.")));
         return;
@@ -100,7 +98,7 @@ void MainWindow::on_actionOpen_triggered()
 
 
     setWindowTitle(filename);
-    ui->pageNumberEdit->setText( QString::number(m_readerLogic.getPageNumber()) );
+    ui->pageNumberEdit->setText( QString::number(m_readerLogic.getPageNumber(0)) );
     createThumbonails();
     showPage(1);
 
@@ -113,7 +111,7 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::createThumbonails()
 {
-    ThumbonailsListPtr_t pages = m_readerLogic.getThumbonails();
+    ThumbonailsListPtr_t pages = m_readerLogic.getThumbonailsFromDocument(0);
 
     ThumbonailsIterator iter = pages->begin();      // :) I know about foreach but iterators I like more
 
@@ -137,21 +135,21 @@ void MainWindow::createThumbonails()
 void MainWindow::applyPageZoom(double_t scaleFactor)
 {
 
-    double_t newZoomValue = m_readerLogic.getPageZoom() * scaleFactor;
+    double_t newZoomValue = m_readerLogic.getPageZoom(0) * scaleFactor;
 
     if (newZoomValue > MAXIMUM_PAGE_ZOOM)
     {
         newZoomValue = MAXIMUM_PAGE_ZOOM;
-        scaleFactor = MAXIMUM_PAGE_ZOOM / m_readerLogic.getPageZoom();
+        scaleFactor = MAXIMUM_PAGE_ZOOM / m_readerLogic.getPageZoom(0);
     }
 
     if (newZoomValue < MINIMUM_PAGE_ZOOM)
     {
         newZoomValue = MINIMUM_PAGE_ZOOM;
-        scaleFactor = MINIMUM_PAGE_ZOOM / m_readerLogic.getPageZoom();
+        scaleFactor = MINIMUM_PAGE_ZOOM / m_readerLogic.getPageZoom(0);
     }
 
-    m_readerLogic.setPageZoom(newZoomValue);
+    m_readerLogic.setPageZoom(0, newZoomValue);
     ui->zoomEdit->setText(QString::number(static_cast<int>(newZoomValue * 100)));
     ui->pageView->scale(scaleFactor, scaleFactor);
 }
@@ -162,12 +160,12 @@ void MainWindow::showPage(int_t number)
     QGraphicsScene* pageScene = ui->pageView->scene();
     pageScene->clear();
 
-    QImage* pImage = m_readerLogic.getPage(number);
+    QImage* pImage = m_readerLogic.getPage(0, number);
 
     PageGraphicsItem* pageItem = new PageGraphicsItem(pImage, PageGraphicsItem::PAGE_VIEW, this, number);
 
     pageScene->addItem(pageItem);
-    m_readerLogic.setPageNumber(number - 1);
+    m_readerLogic.setPageNumber(0, number - 1);
     ui->pageNumberEdit->setText(QString::number(number));
 }
 
@@ -194,10 +192,10 @@ void MainWindow::resetStateBeforeLoading()
     ui->thumbonailsView->setScene(thumbonailsScene);
     /* ------------------------------- */
 
-    applyPageZoom(1 / m_readerLogic.getPageZoom());
+    applyPageZoom(1 / m_readerLogic.getPageZoom(0));
     ui->thumbonailsView->setDragMode(QGraphicsView::ScrollHandDrag);    
 
-    m_readerLogic.clean();
+    m_readerLogic.closeDocument(0);
 }
 
 void MainWindow::createDock()
@@ -212,9 +210,9 @@ void MainWindow::createDock()
 
 void MainWindow::on_previousButton_clicked()
 {
-    int_t pageNumber = m_readerLogic.getPageNumber();
+    int_t pageNumber = m_readerLogic.getPageNumber(0);
 
-    if (!m_readerLogic.isFirstPage())
+    if (!m_readerLogic.isFirstPage(0))
     {
         showPage(pageNumber);
     }
@@ -222,9 +220,9 @@ void MainWindow::on_previousButton_clicked()
 
 void MainWindow::on_nextButton_clicked()
 {
-    int_t pageNumber = m_readerLogic.getPageNumber();
+    int_t pageNumber = m_readerLogic.getPageNumber(0);
 
-    if (!m_readerLogic.isLastPage())
+    if (!m_readerLogic.isLastPage(0))
     {
         showPage(pageNumber + 2);
     }
@@ -234,9 +232,9 @@ void MainWindow::on_pageNumberEdit_returnPressed()
 {
     int_t pageNumber = ui->pageNumberEdit->text().toInt();    
 
-    if (!m_readerLogic.isInRangeOfNumbers(pageNumber - 1))
+    if (!m_readerLogic.isInRangeOfNumbers(0, pageNumber - 1))
     {
-        int numberOfPages = m_readerLogic.getNumberOfPages();
+        int numberOfPages = m_readerLogic.getNumberOfPages(0);
 
         if (pageNumber > numberOfPages)
         {
