@@ -8,11 +8,10 @@
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-QMAKE_LIBDIR += $$PWD/lib
+win32:QMAKE_LIBDIR += $$PWD/lib
+win32:LIBS += -ladvapi32
 
 LIBS += -lfreetype
-
-#-lfreetype  -lpaper
 
 TARGET = testProject
 TEMPLATE = app
@@ -25,10 +24,7 @@ INCLUDEPATH +=  logic       \
                 events      \
                 libxpdf     \
                 include     \
-                include/freetype    \
-                include/freetype/config    \
-                include/freetype/internal    \
-                include/freetype/internal/services    \
+                include/freetype2    \
                 libxpdf/goo     \
                 libxpdf/xpdf    \
                 libxpdf/splash  \
@@ -196,92 +192,52 @@ HEADERS  += gui/mainwindow.h \
     logic/pdfreaderlogic.h \
     gui/pagegraphicsitem.h \
     events/pagegraphicsitemevent.h \    
-#    include/ft2build.h \
-#    include/freetype/tttags.h \
-#    include/freetype/tttables.h \
-#    include/freetype/ttnameid.h \
-#    include/freetype/t1tables.h \
-#    include/freetype/ftxf86.h \
-#    include/freetype/ftwinfnt.h \
-#    include/freetype/fttypes.h \
-#    include/freetype/fttrigon.h \
-#    include/freetype/ftsystem.h \
-#    include/freetype/ftsynth.h \
-#    include/freetype/ftstroke.h \
-#    include/freetype/ftsnames.h \
-#    include/freetype/ftsizes.h \
-#    include/freetype/ftrender.h \
-#    include/freetype/ftpfr.h \
-#    include/freetype/ftoutln.h \
-#    include/freetype/ftotval.h \
-#    include/freetype/ftmoderr.h \
-#    include/freetype/ftmodapi.h \
-#    include/freetype/ftmm.h \
-#    include/freetype/ftmac.h \
-#    include/freetype/ftlzw.h \
-#    include/freetype/ftlist.h \
-#    include/freetype/ftlcdfil.h \
-#    include/freetype/ftincrem.h \
-#    include/freetype/ftimage.h \
-#    include/freetype/ftgzip.h \
-#    include/freetype/ftgxval.h \
-#    include/freetype/ftglyph.h \
-#    include/freetype/ftgasp.h \
-#    include/freetype/fterrors.h \
-#    include/freetype/fterrdef.h \
-#    include/freetype/ftcid.h \
-#    include/freetype/ftchapters.h \
-#    include/freetype/ftcache.h \
-#    include/freetype/ftbitmap.h \
-#    include/freetype/ftbdf.h \
-#    include/freetype/ftbbox.h \
-#    include/freetype/ftadvanc.h \
-#    include/freetype/freetype.h \
-#    include/freetype/ttunpat.h \
-#    include/freetype/config/ftoption.h \
-#    include/freetype/config/ftmodule.h \
-#    include/freetype/config/ftheader.h \
-#    include/freetype/config/ftconfig.h \
-#    include/freetype/config/ftstdlib.h \
-#    include/freetype/internal/t1types.h \
-#    include/freetype/internal/sfnt.h \
-#    include/freetype/internal/pshints.h \
-#    include/freetype/internal/psaux.h \
-#    include/freetype/internal/pcftypes.h \
-#    include/freetype/internal/internal.h \
-#    include/freetype/internal/ftvalid.h \
-#    include/freetype/internal/fttrace.h \
-#    include/freetype/internal/ftstream.h \
-#    include/freetype/internal/ftserv.h \
-#    include/freetype/internal/ftrfork.h \
-#    include/freetype/internal/ftobjs.h \
-#    include/freetype/internal/ftmemory.h \
-#    include/freetype/internal/ftgloadr.h \
-#    include/freetype/internal/ftdriver.h \
-#    include/freetype/internal/ftdebug.h \
-#    include/freetype/internal/ftcalc.h \
-#    include/freetype/internal/autohint.h \
-#    include/freetype/internal/tttypes.h \
-#    include/freetype/internal/services/svwinfnt.h \
-#    include/freetype/internal/services/svttglyf.h \
-#    include/freetype/internal/services/svtteng.h \
-#    include/freetype/internal/services/svttcmap.h \
-#    include/freetype/internal/services/svsfnt.h \
-#    include/freetype/internal/services/svpsinfo.h \
-#    include/freetype/internal/services/svpscmap.h \
-#    include/freetype/internal/services/svpostnm.h \
-#    include/freetype/internal/services/svpfr.h \
-#    include/freetype/internal/services/svotval.h \
-#    include/freetype/internal/services/svmm.h \
-#    include/freetype/internal/services/svkern.h \
-#    include/freetype/internal/services/svgxval.h \
-#    include/freetype/internal/services/svgldict.h \
-#    include/freetype/internal/services/svcid.h \
-#    include/freetype/internal/services/svbdf.h \
-#    include/freetype/internal/services/svxf86nm.h \
     libxpdf/goo/GMutex.h \
-    logic/documentpdf.h
+    logic/documentpdf.h \
+    include/ft2build.h \
+    include/freetype2/freetype/tttags.h \
+    include/freetype2/freetype/tttables.h \
+    include/freetype2/freetype/ttnameid.h \
+    include/freetype2/freetype/t1tables.h \
+    include/freetype2/freetype/ftxf86.h \
+    include/freetype2/freetype/ftwinfnt.h \
+    include/freetype2/freetype/fttypes.h \
+    include/freetype2/freetype/fttrigon.h \
+    include/freetype2/freetype/ftsystem.h \
+    include/freetype2/freetype/ftsynth.h \
+    include/freetype2/freetype/ftstroke.h \
+    include/freetype2/freetype/ftsnames.h \
+    include/freetype2/freetype/ftsizes.h \
+    include/freetype2/freetype/ftrender.h \
+    include/freetype2/freetype/ftpfr.h \
+    include/freetype2/freetype/ftoutln.h \
+    include/freetype2/freetype/ftotval.h \
+    include/freetype2/freetype/ftmoderr.h \
+    include/freetype2/freetype/ftmodapi.h \
+    include/freetype2/freetype/ftmm.h \
+    include/freetype2/freetype/ftmac.h \
+    include/freetype2/freetype/ftlzw.h \
+    include/freetype2/freetype/ftlist.h \
+    include/freetype2/freetype/ftlcdfil.h \
+    include/freetype2/freetype/ftincrem.h \
+    include/freetype2/freetype/ftimage.h \
+    include/freetype2/freetype/ftgzip.h \
+    include/freetype2/freetype/ftgxval.h \
+    include/freetype2/freetype/ftglyph.h \
+    include/freetype2/freetype/ftgasp.h \
+    include/freetype2/freetype/fterrors.h \
+    include/freetype2/freetype/fterrdef.h \
+    include/freetype2/freetype/ftchapters.h \
+    include/freetype2/freetype/ftcache.h \
+    include/freetype2/freetype/ftbitmap.h \
+    include/freetype2/freetype/ftbdf.h \
+    include/freetype2/freetype/ftbbox.h \
+    include/freetype2/freetype/freetype.h \
+    include/freetype2/freetype/ttunpat.h \
+    include/freetype2/freetype/config/ftoption.h \
+    include/freetype2/freetype/config/ftmodule.h \
+    include/freetype2/freetype/config/ftheader.h \
+    include/freetype2/freetype/config/ftconfig.h \
+    include/freetype2/freetype/config/ftstdlib.h
 
 FORMS    += gui/mainwindow.ui
-
-OTHER_FILES +=

@@ -26,6 +26,7 @@ bool_t PDFReaderLogic::closeDocument(const int index)
 {
     DocumentPDF* document = m_documents->takeAt(index);
     delete document;
+    return true;
 }
 
 ThumbonailsListPtr_t PDFReaderLogic::getThumbonailsFromDocument(const int index)

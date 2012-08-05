@@ -10,9 +10,11 @@
 DocumentPDF::DocumentPDF(const QString& _name)
 {
 #ifdef WIN32
-    wchar_t* array;
-    _name.toWCharArray(array);
-    mp_doc = new PDFDoc(array, NULL);
+    int size = _name.size();
+    wchar_t* buffer = new wchar_t[size];
+    _name.toWCharArray(buffer);
+    m_xpdfDoc = new PDFDoc(buffer, size);
+    delete [] buffer;
 #elif defined __unix__
 
     QTextCodec* codec = QTextCodec::codecForName("UTF-8");
@@ -21,9 +23,9 @@ DocumentPDF::DocumentPDF(const QString& _name)
 
     const_c_str_t name = array.data();
     GString* filename = new GString( name );
-    m_xpdfDoc = new PDFDoc(filename);
-    m_valid = m_xpdfDoc->isOk();
+    m_xpdfDoc = new PDFDoc(filename);    
 #endif
+    m_valid = m_xpdfDoc->isOk();
     if (m_valid)
     {
         this->__initOutputDevice();
