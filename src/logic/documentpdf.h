@@ -5,7 +5,6 @@
 #include "types.h"
 
 class PDFDoc;
-class SplashOutputDev;
 
 class DocumentPDF
 {
@@ -13,7 +12,7 @@ public:
     DocumentPDF(const QString& filepath);
     virtual ~DocumentPDF();
     bool_t isValid();
-    ThumbonailsListPtr_t getThumbonailsFromDocument() const;
+    ThumbonailsListPtr_t getThumbonailsFromDocument();
     QImage*             getPage(int_t number);
     int_t               getNumberOfPages() const;
     int_t               getPageNumber() const;
@@ -23,19 +22,19 @@ public:
 
 
 private:
-    bool_t      m_valid;
-    int_t       m_numberOfPages;
-    int_t       m_pageNumber;
-    double_t    m_pageZoom;
-    PDFDoc*     m_xpdfDoc;
+    bool_t                  m_valid;
+    int_t                   m_numberOfPages;
+    int_t                   m_pageNumber;
+    double_t                m_pageZoom;
+    PDFDoc*                 m_xpdfDoc;
     ThumbonailsListPtr_t    mp_thumbonails;
     QImage*                 mp_currentPage;
-    SplashOutputDev*        mp_out;
 
-
-    void        __getThumbonails();
-    void        __getPage(int_t number);
-    void        __initOutputDevice();
+    void        deleteCurrentPage();
+    void        deleteThumbonails();
+    void        getThumbonails();
+    void        readPage(int_t number);
+    void        initOutputDevice();
 
 };
 

@@ -38,6 +38,8 @@ private slots:
 
     void on_actionQuit_triggered();
 
+    void on_actionClose_triggered();
+
 private:
 
     Ui::MainWindow*     ui;
@@ -49,7 +51,7 @@ private:
     void applyPageZoom(double_t scaleFactor);
     void showPage(int_t number);
     void setEnableControlsState(bool_t _state);
-    void resetStateBeforeLoading();
+    void closeDocument();
     void createDock();    
 
 };

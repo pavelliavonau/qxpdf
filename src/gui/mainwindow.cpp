@@ -21,17 +21,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     createDock();
+    setWindowTitle(NO_FILES_LOADED);
 
-    QGraphicsScene* pageScene = new QGraphicsScene(ui->pageView);
-    ui->pageView->setScene(pageScene);    
     ui->pageView->setDragMode(QGraphicsView::ScrollHandDrag);
-
-    QGraphicsScene* thumbonailsScene = new QGraphicsScene(this);
-    ui->thumbonailsView->setScene(thumbonailsScene);
     ui->thumbonailsView->setDragMode(QGraphicsView::ScrollHandDrag);    
 
     g_isFileLoaded = false;
-
 }
 
 MainWindow::~MainWindow()
@@ -87,7 +82,8 @@ void MainWindow::on_actionOpen_triggered()
 
     if (g_isFileLoaded)
     {
-        resetStateBeforeLoading();        
+        QMessageBox::information(this, QString(tr("Error")), QString(tr("Document is open. Close it please.")));
+        return;
     }
 
     if (!m_readerLogic.openDocument(filename))
@@ -96,6 +92,12 @@ void MainWindow::on_actionOpen_triggered()
         return;
     }
 
+
+    QGraphicsScene* pageScene = new QGraphicsScene(ui->pageView);
+    ui->pageView->setScene(pageScene);
+
+    QGraphicsScene* thumbonailsScene = new QGraphicsScene(this);
+    ui->thumbonailsView->setScene(thumbonailsScene);
 
     setWindowTitle(filename);
     ui->pageNumberEdit->setText( QString::number(m_readerLogic.getPageNumber(0)) );
@@ -179,23 +181,28 @@ void MainWindow::setEnableControlsState(bool_t _state)
     ui->incZoomButton->setEnabled(_state);
 }
 
-void MainWindow::resetStateBeforeLoading()
+void MainWindow::closeDocument()
 {
     ui->pageView->scene()->clear();            
     ui->thumbonailsView->scene()->clear();
     ui->thumbonailsView->scale(THUMBONAIL_VIEW_CLOSING_SCALE, THUMBONAIL_VIEW_CLOSING_SCALE);
 
-    /* replacing previous thumbonails */
+    /* deleting scenes */
     QGraphicsScene* thumbonailsScene = ui->thumbonailsView->scene();
     delete thumbonailsScene;
-    thumbonailsScene = new QGraphicsScene(this);
-    ui->thumbonailsView->setScene(thumbonailsScene);
+    QGraphicsScene* pageScene = ui->pageView->scene();
+    delete pageScene;
     /* ------------------------------- */
 
     applyPageZoom(1 / m_readerLogic.getPageZoom(0));
-    ui->thumbonailsView->setDragMode(QGraphicsView::ScrollHandDrag);    
+
 
     m_readerLogic.closeDocument(0);
+    g_isFileLoaded = false;
+    ui->zoomEdit->setText("");
+    ui->pageNumberEdit->setText("");
+    setWindowTitle(NO_FILES_LOADED);
+    setEnableControlsState(false);
 }
 
 void MainWindow::createDock()
@@ -274,4 +281,9 @@ void MainWindow::on_actionShow_thumbonails_triggered(bool checked)
 void MainWindow::on_actionQuit_triggered()
 {
     close();
+}
+
+void MainWindow::on_actionClose_triggered()
+{
+    closeDocument();
 }

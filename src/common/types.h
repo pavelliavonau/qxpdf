@@ -31,6 +31,8 @@ const int MAXIMUM_PAGE_ZOOM = 2;
 const double ZOOM_STEP = .1;
 const int MOUSE_WHEEL_STEP = 120;
 
+const char NO_FILES_LOADED[] = "no files loaded";
+
 
 /* defines */
 

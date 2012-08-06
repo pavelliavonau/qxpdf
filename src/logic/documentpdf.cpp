@@ -28,9 +28,8 @@ DocumentPDF::DocumentPDF(const QString& _name)
     m_valid = m_xpdfDoc->isOk();
     if (m_valid)
     {
-        this->__initOutputDevice();
-        this->__getThumbonails();        
-        m_numberOfPages = mp_thumbonails->size();
+        m_numberOfPages = m_xpdfDoc->getNumPages();
+        mp_thumbonails = new QList<QImage*>();
         m_pageNumber = 1;
         m_pageZoom = 1;
         mp_currentPage = NULL;
@@ -38,18 +37,10 @@ DocumentPDF::DocumentPDF(const QString& _name)
 }
 
 DocumentPDF::~DocumentPDF()
-{
-    foreach (QImage* p_image, *mp_thumbonails)
-    {
-        uchar* p_bits = p_image->bits();
-        delete[] p_bits;
-        delete p_image;
-
-    }
-
-    delete mp_thumbonails;
-    delete m_xpdfDoc;
-    delete mp_out;
+{    
+    delete m_xpdfDoc;    
+    deleteThumbonails();
+    deleteCurrentPage();
 }
 
 bool_t DocumentPDF::isValid()
@@ -57,22 +48,16 @@ bool_t DocumentPDF::isValid()
     return m_valid;
 }
 
-ThumbonailsListPtr_t DocumentPDF::getThumbonailsFromDocument() const
+ThumbonailsListPtr_t DocumentPDF::getThumbonailsFromDocument()
 {
+    this->getThumbonails();
     return mp_thumbonails;
 }
 
 QImage *DocumentPDF::getPage(int_t number)
 {
-    if (mp_currentPage != NULL)
-    {
-        uchar* bits = mp_currentPage->bits();
-        delete[] bits;
-        delete mp_currentPage;
-        mp_currentPage = NULL;
-    }
-
-    this->__getPage(number);
+    this->deleteCurrentPage();
+    this->readPage(number);
     return mp_currentPage;
 }
 
@@ -101,18 +86,45 @@ void DocumentPDF::setPageZoom(double_t _pageZoom)
     m_pageZoom = _pageZoom;
 }
 
-void DocumentPDF::__getThumbonails()
+void DocumentPDF::deleteCurrentPage()
+{
+    if (mp_currentPage != NULL)
+    {
+        uchar* bits = mp_currentPage->bits();
+        delete[] bits;
+        delete mp_currentPage;
+        mp_currentPage = NULL;
+    }
+}
+
+void DocumentPDF::deleteThumbonails()
+{
+    foreach (QImage* p_image, *mp_thumbonails)
+    {
+        uchar* p_bits = p_image->bits();
+        delete[] p_bits;
+        delete p_image;
+    }
+    delete mp_thumbonails;
+}
+
+void DocumentPDF::getThumbonails()
 {
     int_t numPages = m_xpdfDoc->getNumPages();
 
-    mp_thumbonails = new QList<QImage*>();
+    SplashColor paperColor;
+    paperColor[0] = paperColor[1] = paperColor[2] = 0xff;
+
+    SplashOutputDev out(splashModeRGB8, 1, gFalse, paperColor);
+
+    out.startDoc(m_xpdfDoc->getXRef());
 
     for(int_t i = 1; i <= numPages; ++i)
     {
-        m_xpdfDoc->displayPage(mp_out, i, THUMBONAIL_RESOLUTION, THUMBONAIL_RESOLUTION, 0,
+        m_xpdfDoc->displayPage(&out, i, THUMBONAIL_RESOLUTION, THUMBONAIL_RESOLUTION, 0,
                      gFalse, gTrue, gFalse);
 
-        SplashBitmap* map = mp_out->takeBitmap();
+        SplashBitmap* map = out.takeBitmap();
 
         QImage* p_image = new QImage(map->takeData(),
                                      map->getWidth(),
@@ -127,13 +139,20 @@ void DocumentPDF::__getThumbonails()
 
 }
 
-void DocumentPDF::__getPage(int_t number)
+void DocumentPDF::readPage(int_t number)
 {
 
-    m_xpdfDoc->displayPage(mp_out, number, PAGE_RESOLUTION, PAGE_RESOLUTION, 0,
+    SplashColor paperColor;
+    paperColor[0] = paperColor[1] = paperColor[2] = 0xff;
+
+    SplashOutputDev out(splashModeRGB8, 1, gFalse, paperColor);
+
+    out.startDoc(m_xpdfDoc->getXRef());
+
+    m_xpdfDoc->displayPage(&out, number, PAGE_RESOLUTION, PAGE_RESOLUTION, 0,
                  gFalse, gTrue, gFalse);
 
-    SplashBitmap* map = mp_out->takeBitmap();
+    SplashBitmap* map = out.takeBitmap();
 
     mp_currentPage = new QImage(map->takeData(),
                          map->getWidth(),
@@ -142,14 +161,4 @@ void DocumentPDF::__getPage(int_t number)
                          QImage::Format_RGB888);
     delete map;
 
-}
-
-void DocumentPDF::__initOutputDevice()
-{
-    SplashColor paperColor;
-    paperColor[0] = paperColor[1] = paperColor[2] = 0xff;
-
-    mp_out = new SplashOutputDev(splashModeRGB8, 1, gFalse, paperColor);
-
-    mp_out->startDoc(m_xpdfDoc->getXRef());
 }
