@@ -2,6 +2,7 @@
 #define PAGEGRAPHICSITEM_H
 
 #include <QGraphicsItem>
+#include <QRectF>
 #include "types.h"
 
 class QImage;
@@ -13,10 +14,6 @@ public:
 
     enum PageItemType {
         PAGE_VIEW, THUMBONAILS_VIEW
-    };
-
-    enum State {
-        NOT_SELECTED, SELECTED
     };
 
     PageGraphicsItem(QImage*, PageItemType type = PageGraphicsItem::PAGE_VIEW, QObject* receiver = 0, int_t pageNumber = 1);
@@ -34,7 +31,6 @@ private:
 
     QImage*                 mp_image;
     QObject*                mp_receiver;
-    PageGraphicsItem::State m_selectionState;
     int_t                   m_initialHeight;
     double_t                m_zoom;
     int_t                   m_pageNumber;

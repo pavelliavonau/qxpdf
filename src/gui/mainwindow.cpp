@@ -131,6 +131,7 @@ void MainWindow::createThumbonails()
         iter++;
         pageNumber++;
     }    
+    thumbonailsScene->items().at(pageNumber - 2)->setSelected(true);        // selects first thumbonail
     ui->thumbonailsView->scale(THUMBONAIL_VIEW_LOADING_SCALE, THUMBONAIL_VIEW_LOADING_SCALE);
 }
 

@@ -13,6 +13,7 @@ PageGraphicsItem::PageGraphicsItem(QImage* _image, PageItemType type, QObject* r
     mp_image = _image;
     mp_receiver = receiver;
     m_itemType = type;
+    this->setFlag(QGraphicsItem::ItemIsSelectable);
 }
 
 int_t PageGraphicsItem::getHeight() const
@@ -21,9 +22,13 @@ int_t PageGraphicsItem::getHeight() const
 }
 
 void PageGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
-{
-    // TODO: MAYDO if selecred - draw border
+{    
     painter->drawImage(QPointF(0, 0), *mp_image);
+    if (isSelected() && m_itemType == PageGraphicsItem::THUMBONAILS_VIEW)
+    {
+        painter->setPen( QPen( QBrush( QColor( Qt::blue ) ), 3) );
+        painter->drawRect(boundingRect());
+    }
 }
 
 QRectF PageGraphicsItem::boundingRect() const
@@ -37,8 +42,9 @@ void PageGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
     if (m_itemType == PageGraphicsItem::THUMBONAILS_VIEW)
     {
+        setSelected(true);
         QCoreApplication::sendEvent(mp_receiver, new PageGraphicsItemEvent(PageGraphicsItem::THUMBONAILS_VIEW, m_pageNumber));
-    }
+    }    
 }
 
 void PageGraphicsItem::wheelEvent(QGraphicsSceneWheelEvent *event)
@@ -52,7 +58,7 @@ void PageGraphicsItem::wheelEvent(QGraphicsSceneWheelEvent *event)
         QCoreApplication::sendEvent(mp_receiver, pageEventPtr);
     }
     else
-    {
+    {        
         QGraphicsItem::wheelEvent(event);
     }
 }
